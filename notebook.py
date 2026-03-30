@@ -128,17 +128,22 @@ def summarize_sales_debug(data):
     total_units = 0
     total_revenue = 0.0
 
-    for record in data:
-        # Obvious bug: this key does not exist ('qty' vs 'units').
-        units = record['units']
-        price = record['unit_price']
+    for row in data:
+        # Accept both "units" and "qty"
+        units = row.get("units", row.get("qty", 0))
+        price = row["unit_price"]
 
         total_units += units
         total_revenue += units * price
 
-    # Hidden bug: average price per unit should divide by total_units, not len(data).
-    avg_price = total_revenue / total_units
-    return total_units, round(total_revenue, 2), round(avg_price, 2)
+    # Calculate average price per unit
+    avg_price = total_revenue / total_units if total_units else 0
+
+    return (
+        total_units,
+        round(total_revenue, 2),
+        round(avg_price, 2),
+    )
 
 summary = summarize_sales_debug(sales_data)
 print('Summary:', summary)
